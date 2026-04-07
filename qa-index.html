@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรับข้อร้องเรียนลูกค้า (QA Department)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <div class="flex items-center gap-4 mb-2">
+            <img src="logo.png" alt="SWI Foods" class="h-12" onerror="this.style.display='none'">
+            <h2 class="text-3xl font-bold text-gray-800">🔬 ระบบตรวจสอบข้อร้องเรียน</h2>
+        </div>
+        <p class="text-gray-600 mb-8 pb-4 border-b-2 border-gray-200">ส่วนที่ 2: สำหรับฝ่ายประกันคุณภาพ (QA Department)</p>
+
+        <div id="salesDataSection" class="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg hidden">
+            <h3 class="text-xl font-bold mb-4 text-gray-700 border-b pb-2">📌 ข้อมูลเบื้องต้นจากฝ่ายขาย</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+                <p><strong>Lot No.:</strong> <span id="displayLotNo" class="text-blue-600 font-bold text-lg"></span></p>
+                <p><strong>ชื่อสินค้า:</strong> <span id="displayProductName"></span></p>
+                <p><strong>วันที่รับเรื่อง:</strong> <span id="displayDate"></span></p>
+                <p><strong>ช่องทาง:</strong> <span id="displayChannel"></span></p>
+                <div class="md:col-span-2">
+                    <p><strong>หัวข้อปัญหา:</strong> <span id="displayIssue"></span></p>
+                    <p class="mt-2"><strong>รายละเอียด:</strong> <span id="displayDetails" class="block p-3 bg-white border mt-1 rounded"></span></p>
+                </div>
+            </div>
+            <div id="evidenceContainer" class="mt-4 hidden">
+                <p><strong>ภาพถ่ายหลักฐาน:</strong></p>
+                <img id="displayEvidence" src="" alt="หลักฐาน" class="mt-2 max-h-48 rounded border shadow-sm">
+            </div>
+        </div>
+
+        <div id="noDataMessage" class="mb-8 p-4 bg-red-50 text-red-600 border border-red-200 rounded-lg hidden">
+            ไม่พบข้อมูลข้อร้องเรียนที่รอดำเนินการ กรุณาตรวจสอบให้แน่ใจว่าฝ่ายขายได้บันทึกข้อมูลเรียบร้อยแล้ว
+        </div>
+
+        <form id="qaForm" onsubmit="submitQAForm(event)">
+            
+            <h3 class="text-xl font-semibold mb-4 text-green-700">1. การตรวจสอบเบื้องต้น (Verification)</h3>
+            <div class="mb-6 p-4 border border-green-200 bg-green-50 rounded-md">
+                <label class="block text-gray-700 font-bold mb-2">ผลการตรวจสอบสินค้าตัวอย่าง / Retained Sample <span class="text-red-500">*</span></label>
+                <div class="flex gap-4 mb-4">
+                    <label class="flex items-center"><input type="radio" name="verification" value="พบปัญหาจริง (Valid)" required class="mr-2"> พบปัญหาจริง (Valid)</label>
+                    <label class="flex items-center"><input type="radio" name="verification" value="ไม่พบปัญหา (Invalid)" class="mr-2"> ไม่พบปัญหา (Invalid)</label>
+                </div>
+                
+                <label class="block text-gray-700 font-bold mb-2">รายละเอียดการตรวจสอบ</label>
+                <textarea id="qaDetails" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="ระบุผลการตรวจสอบจากห้องปฏิบัติการหรือการตรวจสอบสายการผลิต..."></textarea>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-green-700">2. การประเมินความเสี่ยง (Risk Assessment)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ระดับความรุนแรง (Severity) <span class="text-red-500">*</span></label>
+                    <select id="severity" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">เลือกระดับความรุนแรง</option>
+                        <option value="High">สูง (High) - กระทบความปลอดภัยอาหาร</option>
+                        <option value="Medium">ปานกลาง (Medium) - ผิดสเปคแต่ไม่อันตราย</option>
+                        <option value="Low">ต่ำ (Low) - ปัญหาด้านบรรจุภัณฑ์ภายนอก/ความสวยงาม</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ผู้ประเมิน (QA Name) <span class="text-red-500">*</span></label>
+                    <input type="text" id="qaName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-green-700">3. การดำเนินการ (Action Taken)</h3>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-bold mb-2">สาเหตุของปัญหา (Root Cause) & การแก้ไขป้องกัน (Corrective/Preventive Action)</label>
+                <textarea id="correctiveAction" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+            </div>
+
+            <button type="submit" id="qaSubmitBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 flex justify-center items-center">
+                <span>บันทึกผลตรวจสอบ & สร้าง PDF สรุปรายงาน</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        window.onload = function() {
+            const savedData = localStorage.getItem('complaintData');
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('salesDataSection').classList.remove('hidden');
+                document.getElementById('displayLotNo').textContent = data.lotNo;
+                document.getElementById('displayProductName').textContent = data.productName;
+                document.getElementById('displayDate').textContent = data.date;
+                document.getElementById('displayChannel').textContent = data.channel;
+                document.getElementById('displayIssue').textContent = data.issueTypes;
+                document.getElementById('displayDetails').textContent = data.details;
+
+                if (data.evidenceImage) {
+                    document.getElementById('evidenceContainer').classList.remove('hidden');
+                    document.getElementById('displayEvidence').src = data.evidenceImage;
+                }
+            } else {
+                document.getElementById('noDataMessage').classList.remove('hidden');
+                document.getElementById('qaForm').style.opacity = '0.5';
+                document.getElementById('qaForm').style.pointerEvents = 'none';
+            }
+        };
+
+        function submitQAForm(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('qaSubmitBtn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = 'กำลังสร้างรายงานฉบับสมบูรณ์... ⏳';
+            btn.disabled = true;
+
+            // 1. ดึงข้อมูล QA
+            const qaData = {
+                verification: document.querySelector('input[name="verification"]:checked').value,
+                qaDetails: document.getElementById('qaDetails').value || '-',
+                severity: document.getElementById('severity').options[document.getElementById('severity').selectedIndex].text,
+                qaName: document.getElementById('qaName').value,
+                correctiveAction: document.getElementById('correctiveAction').value,
+                assessmentDate: new Date().toLocaleDateString('th-TH') // แปลงเป็นวันที่แบบไทย
+            };
+
+            // 2. ดึงข้อมูลฝ่ายขายจาก localStorage
+            const salesData = JSON.parse(localStorage.getItem('complaintData'));
+
+            // 3. สร้าง Template PDF ผสมข้อมูล 2 ส่วน
+            const pdfContainer = document.createElement('div');
+            pdfContainer.innerHTML = `
+                <div style="padding: 20px 30px; font-family: sans-serif; color: #1f2937; font-size: 14px;">
+                    <div style="text-align: center; border-bottom: 2px solid #15803d; padding-bottom: 10px; margin-bottom: 15px;">
+                        <img src="logo.png" style="height: 60px; margin-bottom: 5px;" onerror="this.style.display='none'">
+                        <h2 style="margin: 0; font-size: 20px; color: #111827;">รายงานสรุปข้อร้องเรียนลูกค้า (Final Complaint Report)</h2>
+                        <p style="margin: 5px 0 0 0; color: #4b5563; font-size: 13px;">เอกสารสรุปผลการตรวจสอบและประเมินความเสี่ยง</p>
+                    </div>
+
+                    <h3 style="font-size: 15px; color: #1e3a8a; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px;">ส่วนที่ 1: ข้อมูลข้อร้องเรียน (โดยฝ่ายขาย/การตลาด)</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #d1d5db; width: 50%;"><b>Lot No.:</b> ${salesData.lotNo}</td>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>ชื่อสินค้า:</b> ${salesData.productName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>ชื่อลูกค้า:</b> ${salesData.customerName}</td>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>วันที่รับเรื่อง:</b> ${salesData.date}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 6px; border: 1px solid #d1d5db; background-color: #f8fafc;">
+                                <b>หัวข้อปัญหา:</b> ${salesData.issueTypes}<br>
+                                <b>รายละเอียด:</b> ${salesData.details.replace(/\n/g, '<br>')}
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h3 style="font-size: 15px; color: #15803d; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px;">ส่วนที่ 2: ผลการตรวจสอบ (โดยฝ่ายประกันคุณภาพ QA)</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #d1d5db; width: 50%;"><b>ผลการตรวจสอบ (Verification):</b><br>${qaData.verification}</td>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>ระดับความรุนแรง (Severity):</b><br>${qaData.severity}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 6px; border: 1px solid #d1d5db;"><b>รายละเอียดการตรวจสอบ:</b><br>${qaData.qaDetails.replace(/\n/g, '<br>')}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 8px; border: 1px solid #16a34a; background-color: #f0fdf4;">
+                                <b>สาเหตุของปัญหา (Root Cause) & การแก้ไข/ป้องกัน (Corrective Action):</b><br>
+                                ${qaData.correctiveAction.replace(/\n/g, '<br>')}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>ผู้ประเมิน (QA):</b> ${qaData.qaName}</td>
+                            <td style="padding: 6px; border: 1px solid #d1d5db;"><b>วันที่ประเมิน:</b> ${qaData.assessmentDate}</td>
+                        </tr>
+                    </table>
+
+                    ${salesData.evidenceImage ? `
+                    <div style="margin-top: 15px; page-break-before: auto; page-break-inside: avoid;">
+                        <h3 style="font-size: 15px; color: #475569; margin-bottom: 8px;">ภาพถ่ายประกอบหลักฐาน</h3>
+                        <div style="text-align: center; border: 1px solid #d1d5db; padding: 10px; background-color: #f9fafb;">
+                            <img src="${salesData.evidenceImage}" style="max-width: 100%; max-height: 250px; object-fit: contain; border-radius: 4px;">
+                        </div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // 4. สั่งสร้าง PDF
+            const opt = {
+                margin:       [10, 10, 10, 10], 
+                filename:     `Final_Report_Lot_${salesData.lotNo}.pdf`, // ตั้งชื่อไฟล์ให้ชัดเจนว่าเป็น Final Report
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                alert(`สร้างรายงานฉบับสมบูรณ์ Lot No: ${salesData.lotNo} สำเร็จ!\nกระบวนการจัดการข้อร้องเรียนเสร็จสิ้น`);
+                document.getElementById('qaForm').reset();
+                
+                // เคลียร์ข้อมูลใน localStorage ออก (จำลองว่าทำรายการเสร็จแล้ว)
+                // localStorage.removeItem('complaintData'); // ปลดคอมเมนต์บรรทัดนี้ได้ถ้าระบบเสร็จสมบูรณ์
+                
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("PDF Generation Error: ", err);
+                alert("เกิดข้อผิดพลาดในการสร้าง PDF");
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
