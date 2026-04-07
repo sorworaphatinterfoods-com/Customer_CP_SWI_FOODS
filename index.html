@@ -149,7 +149,8 @@
 
             const imageFile = document.getElementById('evidenceImage').files[0];
             const base64Image = await getBase64(imageFile);
-
+            localStorage.setItem('complaintData', JSON.stringify({ ...formData, evidenceImage: base64Image }));
+            
             // ปรับแก้ CSS ใน Template: ลด Padding/Margin และเพิ่มคำสั่งป้องกันตารางขาด (page-break-inside)
             const pdfContainer = document.createElement('div');
             pdfContainer.innerHTML = `
