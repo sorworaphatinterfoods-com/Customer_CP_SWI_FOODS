@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรับข้อร้องเรียนลูกค้า (Sales & Marketing)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-gray-100 p-6 font-sans">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <div class="flex items-center gap-4 mb-2">
+            <img src="logo.png" alt="SWI Foods" class="h-12" onerror="this.style.display='none'">
+            <h2 class="text-3xl font-bold text-gray-800">📝 บันทึกข้อร้องเรียนลูกค้า</h2>
+        </div>
+        <p class="text-gray-600 mb-8 pb-4 border-b-2 border-gray-200">ส่วนที่ 1: สำหรับฝ่ายขายและการตลาด (Sales & Marketing)</p>
+        
+        <form id="complaintForm" onsubmit="submitForm(event)">
+            <h3 class="text-xl font-semibold mb-4 text-blue-700">1. ข้อมูลผู้รับเรื่อง</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">วันที่รับเรื่องข้อร้องเรียน <span class="text-red-500">*</span></label>
+                    <input type="date" id="receiveDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ชื่อ - สกุล ผู้รับเรื่อง <span class="text-red-500">*</span></label>
+                    <input type="text" id="receiverName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">แผนก</label>
+                    <select id="department" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">เลือกแผนก</option>
+                        <option value="Sales">ฝ่ายขาย (Sales)</option>
+                        <option value="Marketing">ฝ่ายการตลาด (Marketing)</option>
+                        <option value="CustomerService">ลูกค้าสัมพันธ์ (Customer Service)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ตำแหน่ง <span class="text-red-500">*</span></label>
+                    <input type="text" id="position" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-blue-700">2. ข้อมูลลูกค้า</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ชื่อ-สกุลลูกค้า <span class="text-red-500">*</span></label>
+                    <input type="text" id="customerName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">เบอร์โทรติดต่อ <span class="text-red-500">*</span></label>
+                    <input type="tel" id="customerPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 font-bold mb-2">อีเมล</label>
+                    <input type="email" id="customerEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-bold mb-2">ช่องทางการร้องเรียน <span class="text-red-500">*</span></label>
+                <div class="flex gap-4">
+                    <label><input type="radio" name="channel" value="โทรศัพท์" required class="mr-2"> โทรศัพท์</label>
+                    <label><input type="radio" name="channel" value="หน้าร้าน" class="mr-2"> หน้าร้าน</label>
+                    <label><input type="radio" name="channel" value="ออนไลน์" class="mr-2"> ออนไลน์</label>
+                    <label><input type="radio" name="channel" value="อื่นๆ" class="mr-2"> อื่นๆ</label>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-blue-700">3. ข้อมูลสินค้า (Traceability)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">วันที่ซื้อสินค้า <span class="text-red-500">*</span></label>
+                    <input type="date" id="purchaseDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ชื่อสินค้า <span class="text-red-500">*</span></label>
+                    <input type="text" id="productName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Lot No. <span class="text-red-500">*</span></label>
+                    <input type="text" id="lotNo" required placeholder="ระบุ Lot No. ของสินค้า" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">จำนวนที่พบปัญหา <span class="text-red-500">*</span></label>
+                    <input type="number" id="defectQty" required min="1" placeholder="ระบุจำนวน" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-blue-700">4. รายละเอียดปัญหา</h3>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">รายละเอียดข้อร้องเรียน <span class="text-red-500">*</span></label>
+                <textarea id="complaintDetails" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">รายละเอียด หรือบริการที่เกี่ยวข้อง <span class="text-red-500">*</span></label>
+                <div class="flex flex-col gap-2">
+                    <label><input type="checkbox" name="issueType" value="คุณภาพด้าน สี น้ำหนัก ขนาดไม่ได้ตามมาตรฐาน" class="mr-2"> คุณภาพด้าน สี น้ำหนัก ขนาดไม่ได้ตามมาตรฐาน</label>
+                    <label><input type="checkbox" name="issueType" value="คุณภาพด้านการปนเปื้อนข้ามจากสิ่งแปลกปลอม" class="mr-2"> คุณภาพด้านการปนเปื้อนข้ามจากสิ่งแปลกปลอม</label>
+                    <label><input type="checkbox" name="issueType" value="อื่นๆ" class="mr-2"> อื่นๆ</label>
+                </div>
+            </div>
+
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <label class="block text-gray-700 font-bold mb-2">📷 แนบภาพถ่ายสินค้า/ปัญหา (ถ้ามี)</label>
+                <input type="file" id="evidenceImage" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 flex justify-center items-center">
+                <span>บันทึกข้อมูลและสร้างไฟล์ PDF</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) resolve(null);
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function submitForm(event) {
+            event.preventDefault(); 
+            
+            const btn = document.getElementById('submitBtn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = 'กำลังสร้างเอกสาร PDF... ⏳';
+            btn.disabled = true;
+
+            const formData = {
+                date: document.getElementById('receiveDate').value,
+                receiverName: document.getElementById('receiverName').value,
+                department: document.getElementById('department').value || '-',
+                position: document.getElementById('position').value,
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerEmail: document.getElementById('customerEmail').value || '-',
+                channel: document.querySelector('input[name="channel"]:checked')?.value || '-',
+                purchaseDate: document.getElementById('purchaseDate').value,
+                productName: document.getElementById('productName').value,
+                lotNo: document.getElementById('lotNo').value,
+                defectQty: document.getElementById('defectQty').value,
+                details: document.getElementById('complaintDetails').value,
+                issueTypes: Array.from(document.querySelectorAll('input[name="issueType"]:checked')).map(cb => cb.value).join(', ') || '-'
+            };
+
+            const imageFile = document.getElementById('evidenceImage').files[0];
+            const base64Image = await getBase64(imageFile);
+
+            // ปรับแก้ CSS ใน Template: ลด Padding/Margin และเพิ่มคำสั่งป้องกันตารางขาด (page-break-inside)
+            const pdfContainer = document.createElement('div');
+            pdfContainer.innerHTML = `
+                <div style="padding: 20px 30px; font-family: sans-serif; color: #1f2937; font-size: 14px;">
+                    <div style="text-align: center; border-bottom: 2px solid #16a34a; padding-bottom: 10px; margin-bottom: 15px;">
+                        <img src="logo.png" style="height: 60px; margin-bottom: 5px;" onerror="this.style.display='none'">
+                        <h2 style="margin: 0; font-size: 20px; color: #111827;">แบบบันทึกข้อร้องเรียนลูกค้า (Customer Complaint Form)</h2>
+                        <p style="margin: 5px 0 0 0; color: #4b5563; font-size: 13px;">ส่วนที่ 1: สำหรับฝ่ายขายและการตลาด (Sales & Marketing)</p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr><td colspan="2" style="background-color: #f3f4f6; padding: 8px; font-weight: bold; border: 1px solid #d1d5db;">1. ข้อมูลผู้รับเรื่อง</td></tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db; width: 50%;"><b>วันที่รับเรื่อง:</b> ${formData.date}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>ชื่อผู้รับเรื่อง:</b> ${formData.receiverName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>แผนก:</b> ${formData.department}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>ตำแหน่ง:</b> ${formData.position}</td>
+                        </tr>
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr><td colspan="2" style="background-color: #f3f4f6; padding: 8px; font-weight: bold; border: 1px solid #d1d5db;">2. ข้อมูลลูกค้า</td></tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db; width: 50%;"><b>ชื่อ-สกุลลูกค้า:</b> ${formData.customerName}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>เบอร์โทรติดต่อ:</b> ${formData.customerPhone}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>อีเมล:</b> ${formData.customerEmail}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>ช่องทางการร้องเรียน:</b> ${formData.channel}</td>
+                        </tr>
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr><td colspan="2" style="background-color: #fef08a; padding: 8px; font-weight: bold; border: 1px solid #d1d5db;">3. ข้อมูลสินค้า (Traceability)</td></tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db; width: 50%;"><b>วันที่ซื้อสินค้า:</b> ${formData.purchaseDate}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>ชื่อสินค้า:</b> ${formData.productName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>Lot No.:</b> ${formData.lotNo}</td>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;"><b>จำนวนที่พบปัญหา:</b> ${formData.defectQty}</td>
+                        </tr>
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; page-break-inside: avoid;">
+                        <tr><td style="background-color: #f3f4f6; padding: 8px; font-weight: bold; border: 1px solid #d1d5db;">4. รายละเอียดปัญหา</td></tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #d1d5db;">
+                                <b>หัวข้อปัญหา:</b> ${formData.issueTypes}<br><br>
+                                <b>รายละเอียด:</b><br>${formData.details.replace(/\n/g, '<br>')}
+                            </td>
+                        </tr>
+                    </table>
+
+                    ${base64Image ? `
+                    <div style="margin-top: 15px; page-break-before: auto; page-break-inside: avoid;">
+                        <h3 style="background-color: #dbeafe; padding: 8px; border: 1px solid #d1d5db; margin: 0; font-size: 14px;">5. ภาพถ่ายประกอบ</h3>
+                        <div style="text-align: center; border: 1px solid #d1d5db; border-top: none; padding: 15px;">
+                            <img src="${base64Image}" style="max-width: 100%; max-height: 350px; object-fit: contain; border-radius: 8px;">
+                        </div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            // เพิ่ม pagebreak mode เข้าไปเพื่อจัดการปัญหาการขึ้นหน้าใหม่
+            const opt = {
+                margin:       [10, 10, 10, 10], 
+                filename:     `Complaint_Lot_${formData.lotNo}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] } // บังคับให้สนใจคำสั่ง CSS Page Break ที่เราเขียนไว้
+            };
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                alert(`บันทึกข้อร้องเรียน Lot No: ${formData.lotNo} และสร้าง PDF สำเร็จ!\nระบบได้ส่งเรื่องให้ฝ่าย QA เพื่อทำ Verification และ Risk Assessment ต่อไป`);
+                document.getElementById('complaintForm').reset();
+                
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("PDF Generation Error: ", err);
+                alert("เกิดข้อผิดพลาดในการสร้าง PDF");
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
